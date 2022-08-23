@@ -17,7 +17,6 @@ class UserSerializer(serializers.ModelSerializer):
                 queryset=User.objects.all(),
                 fields=["username", "email"]
             ),
-
         ]
 
 
