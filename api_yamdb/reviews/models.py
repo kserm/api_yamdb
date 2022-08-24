@@ -1,5 +1,6 @@
 from datetime import datetime
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
 
 class Category(models.Model):
@@ -39,3 +40,20 @@ class Titles(models.Model):
             check=models.Q(year__lte=datetime.now().year),
             name="title_year_constraint"
         )
+
+
+class User(AbstractUser):
+    bio = models.TextField(
+        "Биография",
+        blank=True
+    )
+    ROLE_CHOICES = (
+        ("user", "user"),
+        ("admin", "admin"),
+        ("moderator", "moderator"),
+    )
+
+    role = models.CharField(
+        max_length=150,
+        choices=ROLE_CHOICES,
+        default="user")
