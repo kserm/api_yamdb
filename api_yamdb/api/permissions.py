@@ -8,6 +8,4 @@ class IsAdmin(BasePermission):
             return True
         return False
 
-class IsUser(BasePermission):
-    def has_permission(self, request, view):
-        return False
+
