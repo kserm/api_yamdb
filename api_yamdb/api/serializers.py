@@ -1,7 +1,7 @@
 from datetime import datetime
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
-from reviews.models import User, Category, Genre, Titles
+from reviews.models import User, Category, Genre, Title, Review, Comment
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -63,11 +63,14 @@ class TitlesSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField()
 
     class Meta:
-        model = Titles
+        model = Title
         fields = "__all__"
 
     def get_rating(self, obj):
-        # здесь будет расчет рейтинга
+        reviews = list(Review.objects.filter(title_id=obj.id).values_list(
+            "score", flat=True))
+        if reviews:
+            return round(sum(reviews) / len(reviews))
         return None
 
     def validate_genre(self, value):
@@ -93,3 +96,32 @@ class TitlesSerializer(serializers.ModelSerializer):
             genres.append(GenreSerializer(genre).data)
         data["genre"] = genres
         return data
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True, slug_field='username',
+    )
+
+    def validate(self, data):
+        if self.context['request'].method != 'POST':
+            return data
+        user = self.context['request'].user
+        title_id = self.context['view'].kwargs['title_id']
+        if Review.objects.filter(author=user, title_id=title_id).exists():
+            raise serializers.ValidationError('Отзыв уже оставлен!')
+        return data
+
+    class Meta:
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        model = Review
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True, slug_field='username'
+    )
+
+    class Meta:
+        fields = ('id', 'text', 'author', 'pub_date')
+        model = Comment
