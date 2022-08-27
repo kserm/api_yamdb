@@ -43,9 +43,8 @@ def get_token_for_users(request):
             user,
             serializer.validated_data["confirmation_code"]):
         token = AccessToken.for_user(user)
-        return Response({"token": str(token)},
+        return Response({"token": token},
                         status=status.HTTP_200_OK)
-
     return Response(serializer.errors,
                     status=status.HTTP_400_BAD_REQUEST)
 
