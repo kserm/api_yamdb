@@ -6,6 +6,6 @@ def send_mail_function(user, confirmation_code):
     return send_mail(
         "регистрация на портале YaMDb",
         f"Уважаемый {user}, ваш код подтверждения: {confirmation_code}",
-        None,
+        "yamdb@yamdb.com",
         [user.email],
         fail_silently=False)
