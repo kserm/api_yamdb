@@ -17,6 +17,7 @@ from reviews.models import User
 
 @api_view(["POST"])
 def register_user(request):
+    """Регистрация нового пользователя """
     serializer = SignUpSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     serializer.save()
@@ -31,6 +32,7 @@ def register_user(request):
 
 @api_view(["POST"])
 def get_token_for_users(request):
+    """Получить токен"""
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     user = get_object_or_404(
@@ -49,6 +51,7 @@ def get_token_for_users(request):
 
 
 class UserViewSet(ModelViewSet):
+    """Логика работы с пользователями"""
     queryset = User.objects.all()
     filter_backends = (SearchFilter,)
     search_fields = ("username",)
