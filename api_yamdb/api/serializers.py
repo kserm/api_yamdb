@@ -1,7 +1,7 @@
 from datetime import datetime
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
-from reviews.models import User, Category, Genre, Title, Review, Comment
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -33,12 +33,28 @@ class UserMeSerializer(serializers.ModelSerializer):
         read_only_fields = ("role",)
 
 
+class SignUpSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+        validators=[UniqueValidator(queryset=User.objects.all())])
+
+    class Meta:
+        model = User
+        fields = ("email", "username")
+
+    def validate_username(self, value):
+        if value == "me":
+            raise serializers.ValidationError(
+                "Это имя недопустимо"
+            )
+        return value
+
+
 class CategorySerializer(serializers.ModelSerializer):
-    slug = serializers.RegexField(regex=r"^[-a-zA-Z0-9_]+$",
-                                  required=True,
-                                  validators=[UniqueValidator(
-                                      queryset=Category.objects.all())]
-                                  )
+    slug = serializers.RegexField(
+        regex=r"^[-a-zA-Z0-9_]+$",
+        required=True,
+        validators=[UniqueValidator(queryset=Category.objects.all())]
+    )
 
     class Meta:
         model = Category
@@ -130,19 +146,3 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'text', 'author', 'pub_date')
         model = Comment
-
-
-class SignUpSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(
-        validators=[UniqueValidator(queryset=User.objects.all())])
-
-    class Meta:
-        model = User
-        fields = ("email", "username")
-
-    def validate_username(self, value):
-        if value == "me":
-            raise serializers.ValidationError(
-                "Это имя недопустимо"
-            )
-        return value
