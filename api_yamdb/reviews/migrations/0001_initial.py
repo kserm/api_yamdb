@@ -2,11 +2,7 @@
 
 import django.contrib.auth.models
 import django.contrib.auth.validators
-<<<<<<< HEAD
-=======
-from django.db import migrations, models
 import django.db.models.deletion
->>>>>>> origin/categories-genres-service
 import django.utils.timezone
 from django.db import migrations, models
 

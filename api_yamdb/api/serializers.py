@@ -1,25 +1,13 @@
-#<<<<<<< HEAD
-from rest_framework import serializers
-from rest_framework.validators import (
-    UniqueTogetherValidator, UniqueValidator)
+from datetime import datetime
 
-from reviews.models import User
+from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         validators=[UniqueValidator(queryset=User.objects.all())])
-#=======
-from datetime import datetime
-from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
-from reviews.models import User, Category, Genre, Title, Review, Comment
-
-
-class UserSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(validators=[UniqueValidator(
-        queryset=User.objects.all())])
-#>>>>>>> origin/categories-genres-service
 
     class Meta:
         model = User
@@ -33,14 +21,11 @@ class UserSerializer(serializers.ModelSerializer):
         ]
 
 
-#<<<<<<< HEAD
 class TokenSerializer(serializers.Serializer):
     username = serializers.CharField()
     confirmation_code = serializers.CharField()
 
 
-#=======
-#>>>>>>> origin/categories-genres-service
 class UserMeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -49,7 +34,6 @@ class UserMeSerializer(serializers.ModelSerializer):
         read_only_fields = ("role",)
 
 
-#<<<<<<< HEAD
 class SignUpSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         validators=[UniqueValidator(queryset=User.objects.all())])
@@ -64,13 +48,14 @@ class SignUpSerializer(serializers.ModelSerializer):
                 "Это имя недопустимо"
             )
         return value
-#=======
+
+
 class CategorySerializer(serializers.ModelSerializer):
-    slug = serializers.RegexField(regex=r"^[-a-zA-Z0-9_]+$",
-                                  required=True,
-                                  validators=[UniqueValidator(
-                                      queryset=Category.objects.all())]
-                                  )
+    slug = serializers.RegexField(
+        regex=r"^[-a-zA-Z0-9_]+$",
+        required=True,
+        validators=[UniqueValidator(queryset=Category.objects.all())]
+    )
 
     class Meta:
         model = Category
@@ -162,4 +147,3 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'text', 'author', 'pub_date')
         model = Comment
-#>>>>>>> origin/categories-genres-service

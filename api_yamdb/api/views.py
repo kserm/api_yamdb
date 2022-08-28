@@ -1,50 +1,24 @@
-#<<<<<<< HEAD
+from api.filters import TitlesFilter
+from api.permissions import (IsAdmin, IsAdminOrReadOnly,
+                             IsAuthorModeratorAdminOrReadOnly)
+from api.serializers import (CategorySerializer, CommentSerializer,
+                             GenreSerializer, ReviewSerializer,
+                             SignUpSerializer, TitlesSerializer,
+                             TokenSerializer, UserMeSerializer, UserSerializer)
+from api.utils import send_mail_function
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.decorators import action, api_view
-from rest_framework.filters import SearchFilter
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
-from rest_framework_simplejwt.tokens import AccessToken
-
-from api.permissions import IsAdmin
-from api.serializers import (SignUpSerializer, TokenSerializer,
-                             UserMeSerializer, UserSerializer)
-from api.utils import send_mail_function
-from reviews.models import User
-#=======
-from django.shortcuts import get_object_or_404
-from rest_framework.decorators import action
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.filters import SearchFilter
-from django_filters.rest_framework import DjangoFilterBackend
-
-from rest_framework.permissions import (IsAdminUser,
-                                        IsAuthenticated,
+from rest_framework.permissions import (IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-
-
-from api.permissions import (IsAdmin,
-                             IsAdminOrReadOnly,
-                             IsAuthorModeratorAdminOrReadOnly)
-from api.serializers import (
-    UserSerializer,
-    UserMeSerializer,
-    CategorySerializer,
-    GenreSerializer,
-    TitlesSerializer,
-    ReviewSerializer,
-    CommentSerializer
-)
-#from api.users_pagination import UsersPagination
-from api.filters import TitlesFilter
-
-from reviews.models import User, Category, Genre, Title, Review
-#>>>>>>> origin/categories-genres-service
+from rest_framework_simplejwt.tokens import AccessToken
+from reviews.models import Category, Genre, Review, Title, User
 
 
 @api_view(["POST"])
@@ -88,10 +62,6 @@ class UserViewSet(ModelViewSet):
     search_fields = ("username",)
     lookup_field = "username"
     permission_classes = (IsAdmin | IsAdminUser,)
-#<<<<<<< HEAD
-#=======
-   # pagination_class = UsersPagination
-#>>>>>>> origin/categories-genres-service
 
     def get_serializer_class(self):
         """
@@ -102,15 +72,10 @@ class UserViewSet(ModelViewSet):
             return UserMeSerializer
         return UserSerializer
 
-#<<<<<<< HEAD
-    @action(methods=["GET", "PATCH"], url_path="me", detail=False,
-            permission_classes=(IsAuthenticated,))
-#=======
     @action(methods=["GET", "PATCH"],
             url_path="me", detail=False,
             permission_classes=(IsAuthenticated,),
             )
-#>>>>>>> origin/categories-genres-service
     def users_profile(self, request):
         """Метод обрабатывает запрос users/me"""
         serializer = self.get_serializer(self.request.user)
@@ -122,8 +87,6 @@ class UserViewSet(ModelViewSet):
             serializer.is_valid()
             serializer.save()
         return Response(serializer.data)
-#<<<<<<< HEAD
-#=======
 
 
 class CategoryViewSet(ModelViewSet):
@@ -200,4 +163,3 @@ class CommentViewSet(ModelViewSet):
             title__id=self.kwargs['title_id']
         )
         serializer.save(author=self.request.user, review=review)
-#">>>>>>> origin/categories-genres-service

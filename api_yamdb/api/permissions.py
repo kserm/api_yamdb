@@ -1,15 +1,10 @@
-from rest_framework.permissions import BasePermission, SAFE_METHODS
+from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 
 class IsAdmin(BasePermission):
     def has_permission(self, request, view):
-<<<<<<< HEAD
         if (request.user.is_authenticated
                 and request.user.role == "admin"):
-            return True
-        return False
-=======
-        if request.user.is_authenticated and request.user.role == "admin":
             return True
         return False
 
@@ -30,4 +25,3 @@ class IsAuthorModeratorAdminOrReadOnly(BasePermission):
             or request.user.is_admin
             or request.user.is_moderator
         )
->>>>>>> origin/categories-genres-service

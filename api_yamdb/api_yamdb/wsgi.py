@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 
-
-=======
->>>>>>> origin/categories-genres-service
 import os
 
 from django.core.wsgi import get_wsgi_application
