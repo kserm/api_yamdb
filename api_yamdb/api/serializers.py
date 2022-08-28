@@ -5,8 +5,8 @@ from reviews.models import User, Category, Genre, Title, Review, Comment
 
 
 class UserSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(validators=[UniqueValidator(
-        queryset=User.objects.all())])
+    email = serializers.EmailField(
+        validators=[UniqueValidator(queryset=User.objects.all())])
 
     class Meta:
         model = User
@@ -18,6 +18,11 @@ class UserSerializer(serializers.ModelSerializer):
                 fields=["username", "email"]
             ),
         ]
+
+
+class TokenSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    confirmation_code = serializers.CharField()
 
 
 class UserMeSerializer(serializers.ModelSerializer):
@@ -125,3 +130,19 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'text', 'author', 'pub_date')
         model = Comment
+
+
+class SignUpSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+        validators=[UniqueValidator(queryset=User.objects.all())])
+
+    class Meta:
+        model = User
+        fields = ("email", "username")
+
+    def validate_username(self, value):
+        if value == "me":
+            raise serializers.ValidationError(
+                "Это имя недопустимо"
+            )
+        return value

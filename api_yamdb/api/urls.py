@@ -8,6 +8,8 @@ from api.views import (UserViewSet,
                        TitlesViewSet,
                        ReviewViewSet,
                        CommentViewSet)
+from api.views import get_token_for_users, register_user
+
 
 router = SimpleRouter()
 router.register("users", UserViewSet, basename="users")
@@ -30,4 +32,7 @@ urlpatterns = [
          name='token_obtain_pair'),
     path("v1/", include(router.urls)),
     path('v1/', include(router_v1.urls)),
+    path("v1/auth/token/", get_token_for_users),
+    path("v1/", include(router.urls)),
+    path("v1/auth/signup/", register_user),
 ]

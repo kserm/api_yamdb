@@ -1,5 +1,6 @@
+from rest_framework import status
 from django.shortcuts import get_object_or_404
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
@@ -27,9 +28,49 @@ from api.users_pagination import UsersPagination
 from api.filters import TitlesFilter
 
 from reviews.models import User, Category, Genre, Title, Review
+from django.contrib.auth.tokens import default_token_generator
+from rest_framework_simplejwt.tokens import AccessToken
+
+from api.serializers import (SignUpSerializer, TokenSerializer)
+from api.utils import send_mail_function
+
+
+@api_view(["POST"])
+def register_user(request):
+    """Регистрация нового пользователя """
+    serializer = SignUpSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    user = get_object_or_404(
+        User,
+        username=serializer.validated_data["username"]
+    )
+    confirmation_code = default_token_generator.make_token(user)
+    send_mail_function(user, confirmation_code)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+def get_token_for_users(request):
+    """Получить токен"""
+    serializer = TokenSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    user = get_object_or_404(
+        User,
+        username=serializer.validated_data["username"]
+    )
+    if default_token_generator.check_token(
+            user,
+            serializer.validated_data["confirmation_code"]):
+        token = AccessToken.for_user(user)
+        return Response({"token": token},
+                        status=status.HTTP_200_OK)
+    return Response(serializer.errors,
+                    status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(ModelViewSet):
+    """Логика работы с пользователями"""
     queryset = User.objects.all()
     filter_backends = (SearchFilter,)
     search_fields = ("username",)
@@ -51,6 +92,7 @@ class UserViewSet(ModelViewSet):
             permission_classes=(IsAuthenticated,),
             )
     def users_profile(self, request):
+        """Метод обрабатывает запрос users/me"""
         serializer = self.get_serializer(self.request.user)
         if request.method == "PATCH":
             serializer = self.get_serializer(
