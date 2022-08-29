@@ -1,7 +1,15 @@
 from django.contrib import admin
 from import_export.admin import ImportMixin
 
-from .resourseces import *
+from .resourseces import (
+    ReviewResource, CommentResource, TitleResource,
+    UserResource, CategoryResource, GenreResource,
+    GenresTitleResource
+    )
+from .models import (
+    Review, Comment, Title, User,
+    Category, Genre, Genres,
+    )
 
 
 class ReviewAdmin(ImportMixin, admin.ModelAdmin):
