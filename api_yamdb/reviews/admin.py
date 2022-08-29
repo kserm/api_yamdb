@@ -1,47 +1,16 @@
 from django.contrib import admin
-from import_export.admin import ImportMixin
-
-from .resourseces import (
-    ReviewResource, CommentResource, TitleResource,
-    UserResource, CategoryResource, GenreResource,
-    GenresTitleResource)
-from .models import (
-    Review, Comment, Title, User,
-    Category, Genre, Genres)
 
 
-class ReviewAdmin(ImportMixin, admin.ModelAdmin):
-    resource_class = ReviewResource
+from .models import (User, Review, Category,
+                     Genre, Title, Genres, Comment)
 
 
-class CommentAdmin(ImportMixin, admin.ModelAdmin):
-    resource_class = CommentResource
+admin.site.register(User)
+admin.site.register(Review)
+admin.site.register(Category)
+admin.site.register(Comment)
+admin.site.register(Genre)
+admin.site.register(Title)
+admin.site.register(Genres)
 
 
-class TitleAdmin(ImportMixin, admin.ModelAdmin):
-    resource_class = TitleResource
-
-
-class UserAdmin(ImportMixin, admin.ModelAdmin):
-    resource_class = UserResource
-
-
-class CategoryAdmin(ImportMixin, admin.ModelAdmin):
-    resource_class = CategoryResource
-
-
-class GenreAdmin(ImportMixin, admin.ModelAdmin):
-    resource_class = GenreResource
-
-
-class GenresTitleAdmin(ImportMixin, admin.ModelAdmin):
-    resource_class = GenresTitleResource
-
-
-admin.site.register(Review, ReviewAdmin)
-admin.site.register(Comment, CommentAdmin)
-admin.site.register(Title, TitleAdmin)
-admin.site.register(User, UserAdmin)
-admin.site.register(Category, CategoryAdmin)
-admin.site.register(Genre, GenreAdmin)
-admin.site.register(Genres, GenresTitleAdmin)
