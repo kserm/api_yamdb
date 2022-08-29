@@ -3,7 +3,6 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
-
 class Category(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(
@@ -49,7 +48,6 @@ class Genres(models.Model):
                               on_delete=models.CASCADE)
 
 
-
 class User(AbstractUser):
     bio = models.TextField(
         "Биография",
@@ -90,11 +88,10 @@ class Review(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-            name="unique_review",
-            fields=["author", "title"],
-        ),
-    ]
-
+                name="unique_review",
+                fields=["author", "title"],
+            ),
+        ]
 
 
 class Comment(models.Model):
