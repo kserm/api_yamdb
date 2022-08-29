@@ -4,12 +4,10 @@ from import_export.admin import ImportMixin
 from .resourseces import (
     ReviewResource, CommentResource, TitleResource,
     UserResource, CategoryResource, GenreResource,
-    GenresTitleResource
-    )
+    GenresTitleResource)
 from .models import (
     Review, Comment, Title, User,
-    Category, Genre, Genres,
-    )
+    Category, Genre, Genres)
 
 
 class ReviewAdmin(ImportMixin, admin.ModelAdmin):
