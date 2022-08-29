@@ -7,4 +7,5 @@ pytest-django==4.4.0
 pytest-pythonpath==0.7.3
 django-filter==2.4.0
 djangorestframework-simplejwt
+django-import-export==2.2.0
 flake8
