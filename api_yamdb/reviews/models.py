@@ -86,6 +86,15 @@ class Review(models.Model):
         auto_now_add=True,
     )
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+            name="unique_review",
+            fields=["author", "title"],
+        ),
+    ]
+
+
 
 class Comment(models.Model):
     review = models.ForeignKey(
