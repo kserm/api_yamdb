@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-# Create your models here.
+
 class User(AbstractUser):
     bio = models.TextField(
         "Биография",
@@ -12,7 +12,6 @@ class User(AbstractUser):
         ("admin", "admin"),
         ("moderator", "moderator"),
     )
-
     role = models.CharField(
         max_length=150,
         choices=ROLE_CHOICES,

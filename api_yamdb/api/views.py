@@ -1,4 +1,5 @@
 from api.filters import TitlesFilter
+
 from api.permissions import (IsAdmin, IsAdminOrReadOnly,
                              IsAuthorModeratorAdminOrReadOnly)
 from api.serializers import (CategorySerializer, CommentSerializer,
@@ -18,7 +19,9 @@ from rest_framework.permissions import (IsAdminUser, IsAuthenticated,
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
-from reviews.models import Category, Genre, Review, Title, User
+
+from reviews.models import Category, Genre, Review, Title
+from users.models import  User
 
 
 @api_view(["POST"])
