@@ -1,7 +1,8 @@
-from django.contrib.auth.models import AbstractUser
+
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from users.models import User
 
 class Category(models.Model):
     name = models.CharField(max_length=256)
@@ -46,23 +47,6 @@ class Genres(models.Model):
                               null=True)
     title = models.ForeignKey(Title,
                               on_delete=models.CASCADE)
-
-
-class User(AbstractUser):
-    bio = models.TextField(
-        "Биография",
-        blank=True
-    )
-    ROLE_CHOICES = (
-        ("user", "user"),
-        ("admin", "admin"),
-        ("moderator", "moderator"),
-    )
-
-    role = models.CharField(
-        max_length=150,
-        choices=ROLE_CHOICES,
-        default="user")
 
 
 class Review(models.Model):
