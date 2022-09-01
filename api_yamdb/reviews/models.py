@@ -2,6 +2,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from users.models import User
+from api.validators import validate_year
 
 
 class Category(models.Model):
@@ -18,8 +19,10 @@ class Category(models.Model):
 
 
 class Genre(models.Model):
-    name = models.TextField()
-    slug = models.SlugField(unique=True)
+    name = models.CharField(max_length=256)
+    slug = models.SlugField(
+        max_length=50,
+        unique=True)
 
     def __str__(self) -> str:
         return self.name
@@ -29,24 +32,15 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    name = models.TextField()
-    year = models.IntegerField()
+    name = models.CharField(max_length=256)
+    year = models.SmallIntegerField(validators=[validate_year])
     description = models.TextField(blank=True)
     genre = models.ManyToManyField(Genre,
-                                   through="Genres",
-                                   related_name="genre")
+                                   related_name="titles")
     category = models.ForeignKey(Category,
                                  on_delete=models.SET_NULL,
                                  null=True,
-                                 related_name="category")
-
-
-class Genres(models.Model):
-    genre = models.ForeignKey(Genre,
-                              on_delete=models.SET_NULL,
-                              null=True)
-    title = models.ForeignKey(Title,
-                              on_delete=models.CASCADE)
+                                 related_name="titles")
 
 
 class Review(models.Model):
