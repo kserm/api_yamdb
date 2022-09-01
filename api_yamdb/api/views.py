@@ -5,7 +5,8 @@ from api.permissions import (IsAdmin, IsAdminOrReadOnly,
 from api.serializers import (CategorySerializer, CommentSerializer,
                              GenreSerializer, ReviewSerializer,
                              SignUpSerializer, TitlesSerializerSend,
-                             TokenSerializer, UserSerializer, TitlesSerializerReceive)
+                             TokenSerializer, UserSerializer,
+                             TitlesSerializerReceive)
 from api.utils import send_mail_function
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404

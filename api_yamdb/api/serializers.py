@@ -83,13 +83,6 @@ class TitlesSerializerReceive(serializers.ModelSerializer):
         model = Title
         fields = "__all__"
 
-    # def get_rating(self, obj):
-    #     reviews = list(Review.objects.filter(title_id=obj.id).values_list(
-    #         "score", flat=True))
-    #     if reviews:
-    #         return round(sum(reviews) / len(reviews))
-    #     return None
-
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
