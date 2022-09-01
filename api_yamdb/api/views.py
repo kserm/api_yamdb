@@ -42,15 +42,11 @@ def get_token_for_users(request):
     """Получить токен"""
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    user = get_object_or_404(
-        User,
-        username=serializer.validated_data["username"])
+    user = serializer.get_user()
     refresh = RefreshToken.for_user(user)
-    print(user)
     return Response(
         {'refresh': str(refresh)},
         status=status.HTTP_200_OK)
-
 
 
 class UserViewSet(ModelViewSet):

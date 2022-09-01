@@ -16,15 +16,19 @@ class UserSerializer(serializers.ModelSerializer):
                   "last_name", "bio", "role",)
 
 
-
 class TokenSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
     confirmation_code = serializers.CharField(required=True)
 
+    def get_user(self):
+        return (
+            get_object_or_404(
+                User,
+                username=self.initial_data.get("username"))
+        )
+
     def validate(self, data):
-        user = get_object_or_404(
-            User,
-            username=data["username"])
+        user = self.get_user()
         if not default_token_generator.check_token(
                 user,
                 data["confirmation_code"]):
