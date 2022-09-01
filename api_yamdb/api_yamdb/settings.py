@@ -17,7 +17,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_filters',
+    'rest_framework_simplejwt',
     'rest_framework',
+    'users',
     'api',
     'reviews',
 ]
@@ -93,7 +95,7 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'),)
 
-AUTH_USER_MODEL = 'reviews.User'
+AUTH_USER_MODEL = 'users.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

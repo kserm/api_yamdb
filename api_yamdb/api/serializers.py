@@ -1,48 +1,43 @@
 from datetime import datetime
+from django.contrib.auth.tokens import default_token_generator
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
-from reviews.models import Category, Comment, Genre, Review, Title, User
+from rest_framework.validators import UniqueValidator
+
+from reviews.models import Category, Comment, Genre, Review, Title
+from users.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(
-        validators=[UniqueValidator(queryset=User.objects.all())])
-
     class Meta:
         model = User
         fields = ("username", "email", "first_name",
                   "last_name", "bio", "role",)
-        validators = [
-            UniqueTogetherValidator(
-                queryset=User.objects.all(),
-                fields=["username", "email"]
-            ),
-        ]
 
 
 class TokenSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    confirmation_code = serializers.CharField()
+    username = serializers.CharField(required=True)
+    confirmation_code = serializers.CharField(required=True)
 
-
-class UserMeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ("username", "email", "first_name",
-                  "last_name", "bio", "role")
-        read_only_fields = ("role",)
+    def validate(self, data):
+        user = get_object_or_404(
+            User,
+            username=data["username"])
+        if not default_token_generator.check_token(
+                user,
+                data["confirmation_code"]):
+            raise serializers.ValidationError(
+                "Неверный код подтверждения")
+        return data
 
 
 class SignUpSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(
-        validators=[UniqueValidator(queryset=User.objects.all())])
-
     class Meta:
         model = User
         fields = ("email", "username")
 
     def validate_username(self, value):
-        if value == "me":
+        if value.lower() == "me":
             raise serializers.ValidationError(
                 "Это имя недопустимо"
             )
