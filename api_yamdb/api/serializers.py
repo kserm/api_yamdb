@@ -1,9 +1,6 @@
-from datetime import datetime
-
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
@@ -41,7 +38,6 @@ class SignUpSerializer(serializers.ModelSerializer):
         model = User
         fields = ("email", "username")
 
-
     def validate_username(self, value):
         if value.lower() == "me":
             raise serializers.ValidationError(
@@ -51,12 +47,6 @@ class SignUpSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    slug = serializers.RegexField(
-        regex=r"^[-a-zA-Z0-9_]+$",
-        required=True,
-        validators=[UniqueValidator(queryset=Category.objects.all())]
-    )
-
     class Meta:
         model = Category
         fields = ("name", "slug")
@@ -76,48 +66,26 @@ class GenreSerializer(serializers.ModelSerializer):
         }
 
 
-class TitlesSerializer(serializers.ModelSerializer):
+class TitlesSerializerSend(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(slug_field="slug",
                                             queryset=Category.objects.all())
     genre = serializers.SlugRelatedField(slug_field="slug",
                                          many=True,
                                          queryset=Genre.objects.all())
-    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Title
         fields = "__all__"
 
-    def get_rating(self, obj):
-        reviews = list(Review.objects.filter(title_id=obj.id).values_list(
-            "score", flat=True))
-        if reviews:
-            return round(sum(reviews) / len(reviews))
-        return None
 
-    def validate_genre(self, value):
-        if len(value) == 0:
-            raise serializers.ValidationError("Должен быть указан"
-                                              " хотя бы один жанр")
-        return value
+class TitlesSerializerReceive(serializers.ModelSerializer):
+    category = CategorySerializer()
+    genre = GenreSerializer(many=True)
+    rating = serializers.IntegerField()
 
-    def validate_year(self, value):
-        year = datetime.now().year
-        if value > year:
-            raise serializers.ValidationError("Год публикации должен быть "
-                                              "не больше текущего!")
-        return value
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        category = Category.objects.get(slug=data["category"])
-        data["category"] = CategorySerializer(category).data
-        genres = []
-        for item in data["genre"]:
-            genre = Genre.objects.get(slug=item)
-            genres.append(GenreSerializer(genre).data)
-        data["genre"] = genres
-        return data
+    class Meta:
+        model = Title
+        fields = "__all__"
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -148,18 +116,5 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
 
 
-class SignUpSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(
-        validators=[UniqueValidator(queryset=User.objects.all())])
 
-    class Meta:
-        model = User
-        fields = ("email", "username")
-
-    def validate_username(self, value):
-        if value == "me":
-            raise serializers.ValidationError(
-                "Это имя недопустимо"
-            )
-        return value
 

@@ -1,24 +1,29 @@
+from django.contrib.auth.tokens import default_token_generator
+from django.db.models import Avg
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+
+from rest_framework import mixins, status
+from rest_framework.decorators import action, api_view
+from rest_framework.filters import SearchFilter
+from rest_framework.permissions import (
+    IsAuthenticated, IsAuthenticatedOrReadOnly)
+from rest_framework.response import Response
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from reviews.models import Category, Genre, Review, Title
+from users.models import User
 from api.filters import TitlesFilter
 from api.permissions import (IsAdmin, IsAdminOrReadOnly,
                              IsAuthorModeratorAdminOrReadOnly)
 from api.serializers import (CategorySerializer, CommentSerializer,
                              GenreSerializer, ReviewSerializer,
-                             SignUpSerializer, TitlesSerializer,
-                             TokenSerializer, UserSerializer)
+                             SignUpSerializer, TitlesSerializerReceive,
+                             TitlesSerializerSend, TokenSerializer,
+                             UserSerializer)
 from api.utils import send_mail_function
-from django.contrib.auth.tokens import default_token_generator
-from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status
-from rest_framework.decorators import action, api_view
-from rest_framework.exceptions import MethodNotAllowed
-from rest_framework.filters import SearchFilter
-from rest_framework.permissions import (IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
-from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
-from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
-from reviews.models import Category, Genre, Review, Title, User
+
 
 
 @api_view(["POST"])
@@ -53,6 +58,7 @@ class UserViewSet(ModelViewSet):
     lookup_field = "username"
     permission_classes = (IsAdmin,)
     serializer_class = UserSerializer
+
     @action(
         methods=["GET", "PATCH"],
         permission_classes=(IsAuthenticated,),
@@ -76,7 +82,8 @@ class UserViewSet(ModelViewSet):
             serializer.data, status=status.HTTP_200_OK)
 
 
-class CategoryViewSet(ModelViewSet):
+class CategoryViewSet(GenericViewSet, mixins.ListModelMixin,
+                      mixins.CreateModelMixin, mixins.DestroyModelMixin):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = (SearchFilter,)
@@ -84,14 +91,9 @@ class CategoryViewSet(ModelViewSet):
     lookup_field = "slug"
     permission_classes = (IsAdminOrReadOnly,)
 
-    def retrieve(self, request, *args, **kwargs):
-        raise MethodNotAllowed('GET')
 
-    def update(self, request, *args, **kwargs):
-        raise MethodNotAllowed('PATCH')
-
-
-class GenreViewSet(ModelViewSet):
+class GenreViewSet(GenericViewSet, mixins.ListModelMixin,
+                   mixins.CreateModelMixin, mixins.DestroyModelMixin):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     filter_backends = (SearchFilter,)
@@ -99,19 +101,17 @@ class GenreViewSet(ModelViewSet):
     lookup_field = "slug"
     permission_classes = (IsAdminOrReadOnly,)
 
-    def retrieve(self, request, *args, **kwargs):
-        raise MethodNotAllowed('GET')
-
-    def update(self, request, *args, **kwargs):
-        raise MethodNotAllowed('PATCH')
-
 
 class TitlesViewSet(ModelViewSet):
-    queryset = Title.objects.all()
-    serializer_class = TitlesSerializer
+    queryset = Title.objects.annotate(rating=Avg("reviews__score"))
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitlesFilter
     permission_classes = (IsAdminOrReadOnly,)
+
+    def get_serializer_class(self):
+        if self.action in ["create", "partial_update"]:
+            return TitlesSerializerSend
+        return TitlesSerializerReceive
 
 
 class ReviewViewSet(ModelViewSet):
@@ -151,6 +151,3 @@ class CommentViewSet(ModelViewSet):
         )
 
         serializer.save(author=self.request.user, review=review)
-
-
-
