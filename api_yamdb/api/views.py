@@ -2,7 +2,6 @@ from django.contrib.auth.tokens import default_token_generator
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-
 from rest_framework import mixins, status
 from rest_framework.decorators import action, api_view
 from rest_framework.filters import SearchFilter
@@ -12,18 +11,17 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from api.filters import TitlesFilter
+from api.permissions import (
+    IsAdmin, IsAdminOrReadOnly,
+    IsAuthorModeratorAdminOrReadOnly)
+from api.serializers import (
+    CategorySerializer, CommentSerializer, GenreSerializer,
+    ReviewSerializer, SignUpSerializer, TitlesSerializerReceive,
+    TitlesSerializerSend, TokenSerializer, UserSerializer)
+from api.utils import send_mail_function
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
-from api.filters import TitlesFilter
-from api.permissions import (IsAdmin, IsAdminOrReadOnly,
-                             IsAuthorModeratorAdminOrReadOnly)
-from api.serializers import (CategorySerializer, CommentSerializer,
-                             GenreSerializer, ReviewSerializer,
-                             SignUpSerializer, TitlesSerializerReceive,
-                             TitlesSerializerSend, TokenSerializer,
-                             UserSerializer)
-from api.utils import send_mail_function
-
 
 
 @api_view(["POST"])
@@ -122,7 +120,7 @@ class ReviewViewSet(ModelViewSet):
     ]
 
     def get_title(self):
-        return  get_object_or_404(Title, id=self.kwargs['title_id'])
+        return get_object_or_404(Title, id=self.kwargs['title_id'])
 
     def get_queryset(self):
         title = self.get_title()
