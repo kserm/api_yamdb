@@ -1,8 +1,15 @@
-from api.views import (CategoryViewSet, CommentViewSet, GenreViewSet,
-                       ReviewViewSet, TitlesViewSet, UserViewSet,
-                       get_token_for_users, register_user)
 from django.urls import include, path
 from rest_framework.routers import SimpleRouter
+
+
+
+from api.views import (
+    UserViewSet, CategoryViewSet,
+    GenreViewSet, TitlesViewSet,
+    ReviewViewSet,  CommentViewSet
+    )
+from api.views import get_token_for_users, register_user
+
 
 router = SimpleRouter()
 router.register("users", UserViewSet, basename="users")
@@ -14,7 +21,6 @@ router.register(
     ReviewViewSet, basename='review')
 router.register(r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
     CommentViewSet, basename='comment')
-
 
 urlpatterns = [
     path("v1/auth/token/", get_token_for_users),

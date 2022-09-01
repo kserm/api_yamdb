@@ -144,7 +144,23 @@ class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
     )
-
     class Meta:
         fields = ('id', 'text', 'author', 'pub_date')
         model = Comment
+
+
+class SignUpSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+        validators=[UniqueValidator(queryset=User.objects.all())])
+
+    class Meta:
+        model = User
+        fields = ("email", "username")
+
+    def validate_username(self, value):
+        if value == "me":
+            raise serializers.ValidationError(
+                "Это имя недопустимо"
+            )
+        return value
+

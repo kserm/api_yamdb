@@ -1,28 +1,38 @@
-from api.filters import TitlesFilter
 
-from api.permissions import (IsAdmin, IsAdminOrReadOnly,
-                             IsAuthorModeratorAdminOrReadOnly)
-from api.serializers import (CategorySerializer, CommentSerializer,
-                             GenreSerializer, ReviewSerializer,
-                             SignUpSerializer, TitlesSerializer,
-                             TokenSerializer, UserSerializer)
-from api.utils import send_mail_function
-from django.contrib.auth.tokens import default_token_generator
+from rest_framework import status
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, serializers
 from rest_framework.decorators import action, api_view
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.filters import SearchFilter
-from rest_framework.permissions import (IsAdminUser, IsAuthenticated,
+from django_filters.rest_framework import DjangoFilterBackend
+
+from rest_framework.permissions import (IsAdminUser,
+                                        IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from rest_framework_simplejwt.tokens import RefreshToken
 
-from reviews.models import Category, Genre, Review, Title
-from users.models import  User
 
+from api.permissions import (IsAdmin,
+                             IsAdminOrReadOnly,
+                             IsAuthorModeratorAdminOrReadOnly)
+from api.serializers import (
+    UserSerializer,
+    CategorySerializer,
+    GenreSerializer,
+    TitlesSerializer,
+    ReviewSerializer,
+    CommentSerializer
+)
+
+from api.filters import TitlesFilter
+
+from reviews.models import User, Category, Genre, Title, Review
+from django.contrib.auth.tokens import default_token_generator
+from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
+
+from api.serializers import (SignUpSerializer, TokenSerializer)
+from api.utils import send_mail_function
 
 
 @api_view(["POST"])
@@ -78,6 +88,7 @@ class UserViewSet(ModelViewSet):
         serializer = self.serializer_class(request.user)
         return Response(
             serializer.data, status=status.HTTP_200_OK)
+
 
 class CategoryViewSet(ModelViewSet):
     queryset = Category.objects.all()
@@ -152,4 +163,8 @@ class CommentViewSet(ModelViewSet):
             Review, id=self.kwargs['review_id'],
             title__id=self.kwargs['title_id']
         )
+
         serializer.save(author=self.request.user, review=review)
+
+
+
