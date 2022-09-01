@@ -4,7 +4,6 @@ from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 

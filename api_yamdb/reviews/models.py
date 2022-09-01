@@ -1,8 +1,8 @@
-
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from users.models import User
+
 
 class Category(models.Model):
     name = models.CharField(max_length=256)
@@ -10,43 +10,44 @@ class Category(models.Model):
         max_length=50,
         unique=True)
 
+    class Meta:
+        ordering = ("slug",)
+
     def __str__(self) -> str:
         return self.name
-
-    class Meta:
-        ordering = ["slug"]
 
 
 class Genre(models.Model):
-    name = models.TextField()
-    slug = models.SlugField(unique=True)
+    name = models.TextField(max_length=256)
+    slug = models.SlugField(unique=True, max_length=50)
+
+    class Meta:
+        ordering = ("slug",)
 
     def __str__(self) -> str:
         return self.name
 
-    class Meta:
-        ordering = ["slug"]
 
 
 class Title(models.Model):
-    name = models.TextField()
-    year = models.IntegerField()
+    name = models.CharField(max_length=256)
+    year = models.SmallIntegerField()
     description = models.TextField(blank=True)
-    genre = models.ManyToManyField(Genre,
-                                   through="Genres",
-                                   related_name="genre")
+    genre = models.ManyToManyField(
+        Genre,
+        through="Genres",
+        related_name="genre")
     category = models.ForeignKey(Category,
                                  on_delete=models.SET_NULL,
                                  null=True,
                                  related_name="category")
 
-
 class Genres(models.Model):
     genre = models.ForeignKey(Genre,
-                              on_delete=models.SET_NULL,
-                              null=True)
+                                on_delete=models.SET_NULL,
+                                  null=True)
     title = models.ForeignKey(Title,
-                              on_delete=models.CASCADE)
+                                on_delete=models.CASCADE)
 
 
 class Review(models.Model):

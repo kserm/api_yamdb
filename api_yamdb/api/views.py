@@ -1,38 +1,24 @@
-
-from rest_framework import status
+from api.filters import TitlesFilter
+from api.permissions import (IsAdmin, IsAdminOrReadOnly,
+                             IsAuthorModeratorAdminOrReadOnly)
+from api.serializers import (CategorySerializer, CommentSerializer,
+                             GenreSerializer, ReviewSerializer,
+                             SignUpSerializer, TitlesSerializer,
+                             TokenSerializer, UserSerializer)
+from api.utils import send_mail_function
+from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status
 from rest_framework.decorators import action, api_view
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.filters import SearchFilter
-from django_filters.rest_framework import DjangoFilterBackend
-
-from rest_framework.permissions import (IsAdminUser,
-                                        IsAuthenticated,
+from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-
-
-from api.permissions import (IsAdmin,
-                             IsAdminOrReadOnly,
-                             IsAuthorModeratorAdminOrReadOnly)
-from api.serializers import (
-    UserSerializer,
-    CategorySerializer,
-    GenreSerializer,
-    TitlesSerializer,
-    ReviewSerializer,
-    CommentSerializer
-)
-
-from api.filters import TitlesFilter
-
-from reviews.models import User, Category, Genre, Title, Review
-from django.contrib.auth.tokens import default_token_generator
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
-
-from api.serializers import (SignUpSerializer, TokenSerializer)
-from api.utils import send_mail_function
+from reviews.models import Category, Genre, Review, Title, User
 
 
 @api_view(["POST"])
