@@ -30,13 +30,14 @@ class Genre(models.Model):
         return self.name
 
 
-
 class Title(models.Model):
     name = models.CharField(max_length=256)
     year = models.SmallIntegerField(validators=[validate_year])
     description = models.TextField(blank=True)
-    genre = models.ManyToManyField(Genre,
-                                   related_name="titles")
+    genre = models.ManyToManyField(
+        Genre,
+        related_name="titles"
+    )
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,

@@ -67,11 +67,13 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitlesSerializerSend(serializers.ModelSerializer):
-    category = serializers.SlugRelatedField(slug_field="slug",
-                                            queryset=Category.objects.all())
-    genre = serializers.SlugRelatedField(slug_field="slug",
-                                         many=True,
-                                         queryset=Genre.objects.all())
+    category = serializers.SlugRelatedField(
+        slug_field="slug",
+        queryset=Category.objects.all())
+    genre = serializers.SlugRelatedField(
+        slug_field="slug",
+        many=True,
+        queryset=Genre.objects.all())
 
     class Meta:
         model = Title
@@ -93,6 +95,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True, slug_field='username',
     )
 
+    class Meta:
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        model = Review
+
     def validate(self, data):
         if self.context['request'].method != 'POST':
             return data
@@ -102,9 +108,7 @@ class ReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Отзыв уже оставлен!')
         return data
 
-    class Meta:
-        fields = ('id', 'text', 'author', 'score', 'pub_date')
-        model = Review
+
 
 
 class CommentSerializer(serializers.ModelSerializer):

@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models import CheckConstraint, Q
+from django.db.models import CheckConstraint, Q, UniqueConstraint
 
 
 class User(AbstractUser):
@@ -8,7 +8,11 @@ class User(AbstractUser):
         constraints = [
             CheckConstraint(
                 check=~Q(username="me"),
-                name="not_me")
+                name="not_me"),
+            UniqueConstraint(
+                fields=("email",),
+                name="email_constraint"
+            )
         ]
 
     USER = "user"
