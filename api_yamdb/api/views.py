@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from api.customs_viewsets import CategoryGenreBasicViewSet
 from api.filters import TitlesFilter
 from api.permissions import (
     IsAdmin, IsAdminOrReadOnly,
@@ -41,7 +42,7 @@ def get_token_for_users(request):
     """Получить токен"""
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    user = serializer.get_user()
+    user = serializer.validated_data["username"]
     refresh = RefreshToken.for_user(user)
     return Response(
         {'refresh': str(refresh)},
@@ -68,8 +69,7 @@ class UserViewSet(ModelViewSet):
                 data=request.data,
                 partial=True)
             serializer.is_valid(raise_exception=True)
-            if request.user.role == "user":
-                serializer.validated_data["role"] = "user"
+            serializer.validated_data["role"] = "user"
             serializer.save()
             return Response(
                 serializer.data,
@@ -80,24 +80,14 @@ class UserViewSet(ModelViewSet):
             serializer.data, status=status.HTTP_200_OK)
 
 
-class CategoryViewSet(GenericViewSet, mixins.ListModelMixin,
-                      mixins.CreateModelMixin, mixins.DestroyModelMixin):
+class CategoryViewSet(CategoryGenreBasicViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    filter_backends = (SearchFilter,)
-    search_fields = ("name",)
-    lookup_field = "slug"
-    permission_classes = (IsAdminOrReadOnly,)
 
 
-class GenreViewSet(GenericViewSet, mixins.ListModelMixin,
-                   mixins.CreateModelMixin, mixins.DestroyModelMixin):
+class GenreViewSet(CategoryGenreBasicViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    filter_backends = (SearchFilter,)
-    search_fields = ("name",)
-    lookup_field = "slug"
-    permission_classes = (IsAdminOrReadOnly,)
 
 
 class TitlesViewSet(ModelViewSet):
@@ -123,12 +113,12 @@ class ReviewViewSet(ModelViewSet):
         return get_object_or_404(Title, id=self.kwargs['title_id'])
 
     def get_queryset(self):
-        title = self.get_title()
-        return title.reviews.all()
+        return self.get_title().reviews.all()
 
     def perform_create(self, serializer):
-        title = self.get_title()
-        serializer.save(author=self.request.user, title=title)
+        serializer.save(
+            author=self.request.user,
+            title=self.get_title())
 
 
 class CommentViewSet(ModelViewSet):
@@ -145,9 +135,9 @@ class CommentViewSet(ModelViewSet):
         )
 
     def get_queryset(self):
-        review = self.get_review()
-        return review.comments.all()
+        return self.get_review().comments.all()
 
     def perform_create(self, serializer):
-        review = self.get_review()
-        serializer.save(author=self.request.user, review=review)
+        serializer.save(
+            author=self.request.user,
+            review=self.get_review())

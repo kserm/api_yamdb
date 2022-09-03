@@ -1,20 +1,11 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models import CheckConstraint, Q, UniqueConstraint
+
+from users.validators import (
+    UsernameSimbolsValidator, username_me_valdator)
 
 
 class User(AbstractUser):
-    class Meta:
-        constraints = [
-            CheckConstraint(
-                check=~Q(username="me"),
-                name="not_me"),
-            UniqueConstraint(
-                fields=("email",),
-                name="email_constraint"
-            )
-        ]
-
     USER = "user"
     MODERATOR = "moderator"
     ADMIN = "admin"
@@ -23,8 +14,13 @@ class User(AbstractUser):
         (MODERATOR, "Moderator"),
         (ADMIN, "Admin"),
     )
+    username_validator = UsernameSimbolsValidator()
 
     username = models.CharField(
+        validators=(
+            username_validator,
+            username_me_valdator
+        ),
         unique=True,
         max_length=150
     )
@@ -36,10 +32,6 @@ class User(AbstractUser):
         max_length=150,
         blank=True
     )
-    last_name = models.CharField(
-        max_length=150,
-        blank=True
-    )
     bio = models.TextField(
         blank=True
     )
@@ -47,3 +39,12 @@ class User(AbstractUser):
         max_length=150,
         choices=ROLE_CHOICES,
         default="user")
+
+    @property
+    def is_admin(self):
+        return self.role == self.ADMIN
+
+    @property
+    def is_moderator(self):
+        return self.role == self.MODERATOR
+

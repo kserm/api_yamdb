@@ -31,6 +31,7 @@ class TokenSerializer(serializers.Serializer):
                 data["confirmation_code"]):
             raise serializers.ValidationError(
                 "Неверный код подтверждения")
+        data["username"] = user
         return data
 
 
