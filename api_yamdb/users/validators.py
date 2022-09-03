@@ -6,7 +6,7 @@ class UsernameSimbolsValidator(RegexValidator):
     regex = r"^[\w.@+-]+$"
 
 
-def username_me_valdator(value):
+def validate_name_me(value):
     if value.lower() == "me":
         raise ValidationError(
             "Имя 'me' недопустимо.",

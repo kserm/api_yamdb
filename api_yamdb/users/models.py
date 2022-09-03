@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from users.validators import (
-    UsernameSimbolsValidator, username_me_valdator)
+    UsernameSimbolsValidator, validate_name_me)
 
 
 class User(AbstractUser):
@@ -14,12 +14,12 @@ class User(AbstractUser):
         (MODERATOR, "Moderator"),
         (ADMIN, "Admin"),
     )
-    username_validator = UsernameSimbolsValidator()
+    username_simbols_validator = UsernameSimbolsValidator()
 
     username = models.CharField(
         validators=(
-            username_validator,
-            username_me_valdator
+            username_simbols_validator,
+            validate_name_me
         ),
         unique=True,
         max_length=150
@@ -47,4 +47,3 @@ class User(AbstractUser):
     @property
     def is_moderator(self):
         return self.role == self.MODERATOR
-
