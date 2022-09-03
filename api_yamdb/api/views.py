@@ -84,24 +84,23 @@ class UserViewSet(ModelViewSet):
             serializer.data, status=status.HTTP_200_OK)
 
 
-class CategoryViewSet(GenericViewSet, mixins.ListModelMixin,
-                      mixins.CreateModelMixin, mixins.DestroyModelMixin):
+class CategoryGenreBasicViewSet(GenericViewSet, mixins.ListModelMixin,
+                                mixins.CreateModelMixin,
+                                mixins.DestroyModelMixin):
+    filter_backends = (SearchFilter,)
+    search_fields = ("name",)
+    lookup_field = "slug"
+    permission_classes = (IsAdminOrReadOnly,)
+
+
+class CategoryViewSet(CategoryGenreBasicViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    filter_backends = (SearchFilter,)
-    search_fields = ("name",)
-    lookup_field = "slug"
-    permission_classes = (IsAdminOrReadOnly,)
 
 
-class GenreViewSet(GenericViewSet, mixins.ListModelMixin,
-                   mixins.CreateModelMixin, mixins.DestroyModelMixin):
+class GenreViewSet(CategoryGenreBasicViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    filter_backends = (SearchFilter,)
-    search_fields = ("name",)
-    lookup_field = "slug"
-    permission_classes = (IsAdminOrReadOnly,)
 
 
 class TitlesViewSet(ModelViewSet):
