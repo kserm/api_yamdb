@@ -70,7 +70,7 @@ class UserViewSet(ModelViewSet):
                 data=request.data,
                 partial=True)
             serializer.is_valid(raise_exception=True)
-            serializer.validated_data["role"] = "user"
+            serializer.validated_data["role"] = request.user.role
             serializer.save()
             return Response(
                 serializer.data,

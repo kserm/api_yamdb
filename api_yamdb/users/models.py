@@ -1,8 +1,8 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 
-from users.validators import (
-    UsernameSimbolsValidator, validate_name_me)
+from users.validators import validate_name_me
 
 
 class User(AbstractUser):
@@ -14,12 +14,12 @@ class User(AbstractUser):
         (MODERATOR, "Moderator"),
         (ADMIN, "Admin"),
     )
-    username_simbols_validator = UsernameSimbolsValidator()
 
+    unicode_username_validator = UnicodeUsernameValidator()
     username = models.CharField(
         validators=(
-            username_simbols_validator,
-            validate_name_me
+            validate_name_me,
+            unicode_username_validator
         ),
         unique=True,
         max_length=150
@@ -42,8 +42,10 @@ class User(AbstractUser):
 
     @property
     def is_admin(self):
-        return self.role == self.ADMIN
+        return (self.role == self.ADMIN
+                or self.is_superuser)
 
     @property
     def is_moderator(self):
-        return self.role == self.MODERATOR
+        return (self.role == self.MODERATOR
+                or self.is_staff)
