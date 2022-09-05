@@ -20,12 +20,14 @@ class TokenSerializer(serializers.Serializer):
     def validate(self, data):
         user = get_object_or_404(
             User,
-            username=data["username"])
+            username=self.initial_data.get("username")
+        )
         if not default_token_generator.check_token(
                 user,
                 data["confirmation_code"]):
             raise serializers.ValidationError(
                 "Неверный код подтверждения")
+        data["username"] = user
         return data
 
 
@@ -33,13 +35,6 @@ class SignUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("email", "username")
-
-    def validate_username(self, value):
-        if value.lower() == "me":
-            raise serializers.ValidationError(
-                "Это имя недопустимо"
-            )
-        return value
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -63,11 +58,13 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitlesSerializerSend(serializers.ModelSerializer):
-    category = serializers.SlugRelatedField(slug_field="slug",
-                                            queryset=Category.objects.all())
-    genre = serializers.SlugRelatedField(slug_field="slug",
-                                         many=True,
-                                         queryset=Genre.objects.all())
+    category = serializers.SlugRelatedField(
+        slug_field="slug",
+        queryset=Category.objects.all())
+    genre = serializers.SlugRelatedField(
+        slug_field="slug",
+        many=True,
+        queryset=Genre.objects.all())
 
     class Meta:
         model = Title
@@ -89,6 +86,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True, slug_field='username',
     )
 
+    class Meta:
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        model = Review
+
     def validate(self, data):
         if self.context['request'].method != 'POST':
             return data
@@ -98,15 +99,10 @@ class ReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Отзыв уже оставлен!')
         return data
 
-    class Meta:
-        fields = ('id', 'text', 'author', 'score', 'pub_date')
-        model = Review
-
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        read_only=True, slug_field='username'
-    )
+        read_only=True, slug_field='username')
 
     class Meta:
         fields = ('id', 'text', 'author', 'pub_date')

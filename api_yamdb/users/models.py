@@ -1,16 +1,11 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
-from django.db.models import CheckConstraint, Q
+
+from users.validators import validate_name_me
 
 
 class User(AbstractUser):
-    class Meta:
-        constraints = [
-            CheckConstraint(
-                check=~Q(username="me"),
-                name="not_me")
-        ]
-
     USER = "user"
     MODERATOR = "moderator"
     ADMIN = "admin"
@@ -20,7 +15,12 @@ class User(AbstractUser):
         (ADMIN, "Admin"),
     )
 
+    unicode_username_validator = UnicodeUsernameValidator()
     username = models.CharField(
+        validators=(
+            validate_name_me,
+            unicode_username_validator
+        ),
         unique=True,
         max_length=150
     )
@@ -32,10 +32,6 @@ class User(AbstractUser):
         max_length=150,
         blank=True
     )
-    last_name = models.CharField(
-        max_length=150,
-        blank=True
-    )
     bio = models.TextField(
         blank=True
     )
@@ -43,3 +39,13 @@ class User(AbstractUser):
         max_length=150,
         choices=ROLE_CHOICES,
         default="user")
+
+    @property
+    def is_admin(self):
+        return (self.role == self.ADMIN
+                or self.is_superuser)
+
+    @property
+    def is_moderator(self):
+        return (self.role == self.MODERATOR
+                or self.is_staff)
