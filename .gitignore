@@ -149,4 +149,4 @@ dmypy.json
 media/
 api_yamdb/sent_emails
 
-
+*.zip
